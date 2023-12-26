@@ -13,12 +13,12 @@ describe('prices', () => {
         await connection.end()
     });
 
-    it('does something', async () => {
+    it('cost is 0 if age is less than 6', async () => {
 
         const response = await request(app)
-            .get('/prices?type=1jour')
+            .get('/prices?age=5')
 
-        var expectedResult = {cost: 35} // change this to make the test pass
+        var expectedResult = {cost: 0} // change this to make the test pass
         expect(response.body).toEqual(expectedResult)
     });
 });
