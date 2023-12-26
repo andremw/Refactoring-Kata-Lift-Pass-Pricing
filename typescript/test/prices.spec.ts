@@ -1,8 +1,7 @@
 import request from 'supertest-as-promised';
 import {createApp} from "../src/prices"
 
-describe('prices', () => {
-
+describe('Lift Pass Pricing', () => {
     let app, connection
 
     beforeEach(async () => {
@@ -21,4 +20,6 @@ describe('prices', () => {
         var expectedResult = {cost: 0} // change this to make the test pass
         expect(response.body).toEqual(expectedResult)
     });
+
+
 });
