@@ -71,5 +71,13 @@ describe('Lift Pass Pricing', () => {
             var expectedResult = {cost: 35}
             expect(response.body).toEqual(expectedResult)
         })
+
+        it("cost is reduced by 35% on Mondays", async () => {
+            const response = await request(app)
+                .get('/prices?date=2020-01-06&type=1jour')
+
+            var expectedResult = {cost: 23}
+            expect(response.body).toEqual(expectedResult)
+        })
     })
 });
