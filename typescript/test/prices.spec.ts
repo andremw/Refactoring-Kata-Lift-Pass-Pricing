@@ -55,5 +55,13 @@ describe('Lift Pass Pricing', () => {
             var expectedResult = {cost: 35}
             expect(response.body).toEqual(expectedResult)
         })
+
+        it("cost is reduced by 25% for people older than 64", async () => {
+            const response = await request(app)
+                .get('/prices?age=65&type=1jour')
+
+            var expectedResult = {cost: 27}
+            expect(response.body).toEqual(expectedResult)
+        })
     })
 });
