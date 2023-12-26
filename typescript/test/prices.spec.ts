@@ -1,4 +1,3 @@
-import {assert, expect} from 'chai';
 import request from 'supertest-as-promised';
 import {createApp} from "../src/prices"
 
@@ -20,7 +19,6 @@ describe('prices', () => {
             .get('/prices?type=1jour')
 
         var expectedResult = {cost: 35} // change this to make the test pass
-        expect(response.body).deep.equal(expectedResult)
+        expect(response.body).toEqual(expectedResult)
     });
-
 });
