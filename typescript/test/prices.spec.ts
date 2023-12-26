@@ -79,5 +79,13 @@ describe('Lift Pass Pricing', () => {
             var expectedResult = {cost: 23}
             expect(response.body).toEqual(expectedResult)
         })
+
+        it("cost is unchanged on holidays", async () => {
+            const response = await request(app)
+                .get('/prices?date=2019-02-18&type=1jour&age=15')
+
+            var expectedResult = {cost: 35}
+            expect(response.body).toEqual(expectedResult)
+        })
     })
 });
