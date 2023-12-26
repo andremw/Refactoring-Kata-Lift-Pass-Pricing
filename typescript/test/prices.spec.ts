@@ -30,11 +30,21 @@ describe('Lift Pass Pricing', () => {
             expect(response.body).toEqual(expectedResult)
         })
 
-        it ('cost is standard if age is less than 65', async () => {
+        it('cost is standard if age is less than 65', async () => {
             const response = await request(app)
                 .get('/prices?age=64&type=night')
 
             var expectedResult = {cost: 19}
+            expect(response.body).toEqual(expectedResult)
+        })
+    })
+
+    describe("day pass", () => {
+        it('cost is seventy percent (ceiling) of base price if age is less than 15', async () => {
+            const response = await request(app)
+                .get('/prices?age=14&type=1jour')
+
+            var expectedResult = {cost: 25}
             expect(response.body).toEqual(expectedResult)
         })
     })
