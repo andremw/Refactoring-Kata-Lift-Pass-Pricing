@@ -87,5 +87,13 @@ describe('Lift Pass Pricing', () => {
             var expectedResult = {cost: 35}
             expect(response.body).toEqual(expectedResult)
         })
+
+        it("cost is reduced by 25% plus 35% on Mondays for people older than 64", async () => {
+            const response = await request(app)
+                .get('/prices?date=2020-01-06&type=1jour&age=65')
+
+            var expectedResult = {cost: 18}
+            expect(response.body).toEqual(expectedResult)
+        })
     })
 });
