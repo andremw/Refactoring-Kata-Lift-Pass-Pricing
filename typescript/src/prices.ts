@@ -26,13 +26,17 @@ async function createApp() {
             'WHERE `type` = ? ',
             [liftPassType]))[0][0]
 
+        const getHolidays = async () => {
+            return (await connection.query(
+                'SELECT * FROM `holidays`'
+            ))[0] as mysql.RowDataPacket[]
+        }
+
         if (age as any < 6) {
             sendResponse({cost: 0})
         } else {
             if (liftPassType !== 'night') {
-                const holidays = (await connection.query(
-                    'SELECT * FROM `holidays`'
-                ))[0] as mysql.RowDataPacket[];
+                const holidays = await getHolidays();
 
                 let isHoliday;
                 let reduction = 0
