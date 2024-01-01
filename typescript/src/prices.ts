@@ -34,7 +34,7 @@ async function createApp() {
             ))[0] as mysql.RowDataPacket[]
         }
 
-        const result = await getBasePrice(liftPassType)
+        const basePrice = await getBasePrice(liftPassType)
 
         let passCost: { cost: number } | null = null
 
@@ -66,17 +66,17 @@ async function createApp() {
 
                 // TODO apply reduction for others
                 if (age as any < 15) {
-                    passCost = {cost: Math.ceil(result.cost * .7)}
+                    passCost = {cost: Math.ceil(basePrice.cost * .7)}
                 } else {
                     if (age === undefined) {
-                        let cost = result.cost * (1 - reduction / 100)
+                        let cost = basePrice.cost * (1 - reduction / 100)
                         passCost = {cost: Math.ceil(cost)}
                     } else {
                         if (age as any > 64) {
-                            let cost = result.cost * .75 * (1 - reduction / 100)
+                            let cost = basePrice.cost * .75 * (1 - reduction / 100)
                             passCost = {cost: Math.ceil(cost)}
                         } else {
-                            let cost = result.cost * (1 - reduction / 100)
+                            let cost = basePrice.cost * (1 - reduction / 100)
                             passCost = {cost: Math.ceil(cost)}
                         }
                     }
@@ -84,9 +84,9 @@ async function createApp() {
             } else {
                 if (age as any >= 6) {
                     if (age as any > 64) {
-                        passCost = {cost: Math.ceil(result.cost * .4)}
+                        passCost = {cost: Math.ceil(basePrice.cost * .4)}
                     } else {
-                        passCost = result
+                        passCost = basePrice
                     }
                 } else {
                     passCost = {cost: 0}
