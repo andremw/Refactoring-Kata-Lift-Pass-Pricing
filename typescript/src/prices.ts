@@ -16,24 +16,7 @@ type PassCost = {
     cost: number
 }
 
-async function createApp() {
-    const app = express()
-
-    let connectionOptions = {host: 'localhost', user: 'root', database: 'lift_pass', password: 'mysql'}
-    const connection = await mysql.createConnection(connectionOptions)
-
-    app.put('/prices', async (req, res) => {
-        const liftPassCost = req.query.cost
-        const liftPassType = req.query.type
-        const [rows, fields] = await connection.query(
-            'INSERT INTO `base_price` (type, cost) VALUES (?, ?) ' +
-            'ON DUPLICATE KEY UPDATE cost = ?',
-            [liftPassType, liftPassCost, liftPassCost]);
-
-        res.json()
-    })
-
-    const calculatePassCost =
+const calculatePassCost =
         ({ getHolidays }: PassCostCalculatorDeps) =>
         async ({ age, liftPassType, date, basePrice }: ParamsDTO): Promise<PassCost> => {
         if (age as any < 6) {
@@ -92,6 +75,23 @@ async function createApp() {
             }
         }
     }
+
+async function createApp() {
+    const app = express()
+
+    let connectionOptions = {host: 'localhost', user: 'root', database: 'lift_pass', password: 'mysql'}
+    const connection = await mysql.createConnection(connectionOptions)
+
+    app.put('/prices', async (req, res) => {
+        const liftPassCost = req.query.cost
+        const liftPassType = req.query.type
+        const [rows, fields] = await connection.query(
+            'INSERT INTO `base_price` (type, cost) VALUES (?, ?) ' +
+            'ON DUPLICATE KEY UPDATE cost = ?',
+            [liftPassType, liftPassCost, liftPassCost]);
+
+        res.json()
+    })
 
     app.get('/prices', async (req, res) => {
         const { age, type: liftPassType, date } = req.query;
