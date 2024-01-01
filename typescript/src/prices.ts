@@ -17,64 +17,64 @@ type PassCost = {
 }
 
 const calculatePassCost =
-        ({ getHolidays }: PassCostCalculatorDeps) =>
-        async ({ age, liftPassType, date, basePrice }: ParamsDTO): Promise<PassCost> => {
-        if (age as any < 6) {
-            return {cost: 0}
-        } else {
-            if (liftPassType !== 'night') {
-                const holidays = await getHolidays();
+    ({ getHolidays }: PassCostCalculatorDeps) =>
+    async ({ age, liftPassType, date, basePrice }: ParamsDTO): Promise<PassCost> => {
+    if (age as any < 6) {
+        return {cost: 0}
+    } else {
+        if (liftPassType !== 'night') {
+            const holidays = await getHolidays();
 
-                let isHoliday;
-                let reduction = 0
-                for (let row of holidays) {
-                    let holiday = row.holiday
-                    if (date) {
-                        let d = new Date(date as string)
-                        if (d.getFullYear() === holiday.getFullYear()
-                            && d.getMonth() === holiday.getMonth()
-                            && d.getDate() === holiday.getDate()) {
+            let isHoliday;
+            let reduction = 0
+            for (let row of holidays) {
+                let holiday = row.holiday
+                if (date) {
+                    let d = new Date(date as string)
+                    if (d.getFullYear() === holiday.getFullYear()
+                        && d.getMonth() === holiday.getMonth()
+                        && d.getDate() === holiday.getDate()) {
 
-                            isHoliday = true
-                        }
+                        isHoliday = true
                     }
-
                 }
 
-                if (!isHoliday && new Date(date as string).getDay() === 1) {
-                    reduction = 35
-                }
+            }
 
-                // TODO apply reduction for others
-                if (age as any < 15) {
-                    return {cost: Math.ceil(basePrice.cost * .7)}
+            if (!isHoliday && new Date(date as string).getDay() === 1) {
+                reduction = 35
+            }
+
+            // TODO apply reduction for others
+            if (age as any < 15) {
+                return {cost: Math.ceil(basePrice.cost * .7)}
+            } else {
+                if (age === undefined) {
+                    let cost = basePrice.cost * (1 - reduction / 100)
+                    return {cost: Math.ceil(cost)}
                 } else {
-                    if (age === undefined) {
-                        let cost = basePrice.cost * (1 - reduction / 100)
+                    if (age as any > 64) {
+                        let cost = basePrice.cost * .75 * (1 - reduction / 100)
                         return {cost: Math.ceil(cost)}
                     } else {
-                        if (age as any > 64) {
-                            let cost = basePrice.cost * .75 * (1 - reduction / 100)
-                            return {cost: Math.ceil(cost)}
-                        } else {
-                            let cost = basePrice.cost * (1 - reduction / 100)
-                            return {cost: Math.ceil(cost)}
-                        }
+                        let cost = basePrice.cost * (1 - reduction / 100)
+                        return {cost: Math.ceil(cost)}
                     }
+                }
+            }
+        } else {
+            if (age as any >= 6) {
+                if (age as any > 64) {
+                    return {cost: Math.ceil(basePrice.cost * .4)}
+                } else {
+                    return basePrice
                 }
             } else {
-                if (age as any >= 6) {
-                    if (age as any > 64) {
-                        return {cost: Math.ceil(basePrice.cost * .4)}
-                    } else {
-                        return basePrice
-                    }
-                } else {
-                    return {cost: 0}
-                }
+                return {cost: 0}
             }
         }
     }
+}
 
 async function createApp() {
     const app = express()
