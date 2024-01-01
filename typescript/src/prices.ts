@@ -19,6 +19,7 @@ async function createApp() {
     })
     app.get('/prices', async (req, res) => {
         const { age, type: liftPassType, date } = req.query;
+        const sendResponse = res.json.bind(res);
 
         const result = (await connection.query(
             'SELECT cost FROM `base_price` ' +
@@ -26,7 +27,7 @@ async function createApp() {
             [liftPassType]))[0][0]
 
         if (age as any < 6) {
-            res.json({cost: 0})
+            sendResponse({cost: 0})
         } else {
             if (liftPassType !== 'night') {
                 const holidays = (await connection.query(
@@ -55,30 +56,30 @@ async function createApp() {
 
                 // TODO apply reduction for others
                 if (age as any < 15) {
-                    res.json({cost: Math.ceil(result.cost * .7)})
+                    sendResponse({cost: Math.ceil(result.cost * .7)})
                 } else {
                     if (age === undefined) {
                         let cost = result.cost * (1 - reduction / 100)
-                        res.json({cost: Math.ceil(cost)})
+                        sendResponse({cost: Math.ceil(cost)})
                     } else {
                         if (age as any > 64) {
                             let cost = result.cost * .75 * (1 - reduction / 100)
-                            res.json({cost: Math.ceil(cost)})
+                            sendResponse({cost: Math.ceil(cost)})
                         } else {
                             let cost = result.cost * (1 - reduction / 100)
-                            res.json({cost: Math.ceil(cost)})
+                            sendResponse({cost: Math.ceil(cost)})
                         }
                     }
                 }
             } else {
                 if (age as any >= 6) {
                     if (age as any > 64) {
-                        res.json({cost: Math.ceil(result.cost * .4)})
+                        sendResponse({cost: Math.ceil(result.cost * .4)})
                     } else {
-                        res.json(result)
+                        sendResponse(result)
                     }
                 } else {
-                    res.json({cost: 0})
+                    sendResponse({cost: 0})
                 }
             }
         }
