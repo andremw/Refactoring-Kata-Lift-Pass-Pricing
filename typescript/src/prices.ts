@@ -36,8 +36,10 @@ async function createApp() {
 
         const result = await getBasePrice(liftPassType)
 
+        let passCost: { cost: number } | null = null
+
         if (age as any < 6) {
-            sendResponse({cost: 0})
+            passCost = {cost: 0}
         } else {
             if (liftPassType !== 'night') {
                 const holidays = await getHolidays();
@@ -64,33 +66,35 @@ async function createApp() {
 
                 // TODO apply reduction for others
                 if (age as any < 15) {
-                    sendResponse({cost: Math.ceil(result.cost * .7)})
+                    passCost = {cost: Math.ceil(result.cost * .7)}
                 } else {
                     if (age === undefined) {
                         let cost = result.cost * (1 - reduction / 100)
-                        sendResponse({cost: Math.ceil(cost)})
+                        passCost = {cost: Math.ceil(cost)}
                     } else {
                         if (age as any > 64) {
                             let cost = result.cost * .75 * (1 - reduction / 100)
-                            sendResponse({cost: Math.ceil(cost)})
+                            passCost = {cost: Math.ceil(cost)}
                         } else {
                             let cost = result.cost * (1 - reduction / 100)
-                            sendResponse({cost: Math.ceil(cost)})
+                            passCost = {cost: Math.ceil(cost)}
                         }
                     }
                 }
             } else {
                 if (age as any >= 6) {
                     if (age as any > 64) {
-                        sendResponse({cost: Math.ceil(result.cost * .4)})
+                        passCost = {cost: Math.ceil(result.cost * .4)}
                     } else {
-                        sendResponse(result)
+                        passCost = result
                     }
                 } else {
-                    sendResponse({cost: 0})
+                    passCost = {cost: 0}
                 }
             }
         }
+
+        sendResponse(passCost)
     })
     return {app, connection}
 }
