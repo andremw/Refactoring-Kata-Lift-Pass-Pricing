@@ -21,16 +21,20 @@ async function createApp() {
         const { age, type: liftPassType, date } = req.query;
         const sendResponse = res.json.bind(res);
 
-        const result = (await connection.query(
-            'SELECT cost FROM `base_price` ' +
-            'WHERE `type` = ? ',
-            [liftPassType]))[0][0]
+        const getBasePrice = async (liftPassType) => {
+            return (await connection.query(
+                'SELECT cost FROM `base_price` ' +
+                'WHERE `type` = ? ',
+                [liftPassType]))[0][0]
+        }
 
         const getHolidays = async () => {
             return (await connection.query(
                 'SELECT * FROM `holidays`'
             ))[0] as mysql.RowDataPacket[]
         }
+
+        const result = await getBasePrice(liftPassType)
 
         if (age as any < 6) {
             sendResponse({cost: 0})
