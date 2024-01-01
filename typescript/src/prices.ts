@@ -17,29 +17,10 @@ async function createApp() {
 
         res.json()
     })
-    app.get('/prices', async (req, res) => {
-        const { age, type: liftPassType, date } = req.query;
-        const sendResponse = res.json.bind(res);
 
-        const getBasePrice = async (liftPassType) => {
-            return (await connection.query(
-                'SELECT cost FROM `base_price` ' +
-                'WHERE `type` = ? ',
-                [liftPassType]))[0][0]
-        }
-
-        const getHolidays = async () => {
-            return (await connection.query(
-                'SELECT * FROM `holidays`'
-            ))[0] as mysql.RowDataPacket[]
-        }
-
-        const basePrice = await getBasePrice(liftPassType)
-
-        let passCost: { cost: number } | null = null
-
+    const calculatePassCost = ({ getHolidays }) => async ({ age, liftPassType, date, basePrice }) => {
         if (age as any < 6) {
-            passCost = {cost: 0}
+            return {cost: 0}
         } else {
             if (liftPassType !== 'night') {
                 const holidays = await getHolidays();
@@ -66,33 +47,55 @@ async function createApp() {
 
                 // TODO apply reduction for others
                 if (age as any < 15) {
-                    passCost = {cost: Math.ceil(basePrice.cost * .7)}
+                    return {cost: Math.ceil(basePrice.cost * .7)}
                 } else {
                     if (age === undefined) {
                         let cost = basePrice.cost * (1 - reduction / 100)
-                        passCost = {cost: Math.ceil(cost)}
+                        return {cost: Math.ceil(cost)}
                     } else {
                         if (age as any > 64) {
                             let cost = basePrice.cost * .75 * (1 - reduction / 100)
-                            passCost = {cost: Math.ceil(cost)}
+                            return {cost: Math.ceil(cost)}
                         } else {
                             let cost = basePrice.cost * (1 - reduction / 100)
-                            passCost = {cost: Math.ceil(cost)}
+                            return {cost: Math.ceil(cost)}
                         }
                     }
                 }
             } else {
                 if (age as any >= 6) {
                     if (age as any > 64) {
-                        passCost = {cost: Math.ceil(basePrice.cost * .4)}
+                        return {cost: Math.ceil(basePrice.cost * .4)}
                     } else {
-                        passCost = basePrice
+                        return basePrice
                     }
                 } else {
-                    passCost = {cost: 0}
+                    return {cost: 0}
                 }
             }
         }
+    }
+
+    app.get('/prices', async (req, res) => {
+        const { age, type: liftPassType, date } = req.query;
+        const sendResponse = res.json.bind(res);
+
+        const getBasePrice = async (liftPassType) => {
+            return (await connection.query(
+                'SELECT cost FROM `base_price` ' +
+                'WHERE `type` = ? ',
+                [liftPassType]))[0][0]
+        }
+
+        const getHolidays = async () => {
+            return (await connection.query(
+                'SELECT * FROM `holidays`'
+            ))[0] as mysql.RowDataPacket[]
+        }
+
+        const basePrice = await getBasePrice(liftPassType)
+
+        const passCost = await calculatePassCost({ getHolidays })({ age, liftPassType, date, basePrice})
 
         sendResponse(passCost)
     })
