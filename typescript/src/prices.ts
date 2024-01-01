@@ -1,6 +1,21 @@
 import express from "express";
 import mysql from "mysql2/promise"
 
+type ParamsDTO = {
+    age: any,
+    liftPassType: any,
+    date?: any,
+    basePrice: { cost: number },
+}
+
+type PassCostCalculatorDeps = {
+    getHolidays: () => Promise<any[]>,
+}
+
+type PassCost = {
+    cost: number
+}
+
 async function createApp() {
     const app = express()
 
@@ -18,7 +33,9 @@ async function createApp() {
         res.json()
     })
 
-    const calculatePassCost = ({ getHolidays }) => async ({ age, liftPassType, date, basePrice }) => {
+    const calculatePassCost =
+        ({ getHolidays }: PassCostCalculatorDeps) =>
+        async ({ age, liftPassType, date, basePrice }: ParamsDTO): Promise<PassCost> => {
         if (age as any < 6) {
             return {cost: 0}
         } else {
